@@ -1,23 +1,10 @@
 pragma solidity >= 0.4.0;
 
-contract Greeter {
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
+
+contract Greeter is Ownable {
     // The string of the greeting to send
-    string private _greeting;
-    // The address of the contract owner
-    address private _owner;
-
-    constructor() {
-        _owner = msg.sender;
-        _greeting = "Hello, World!";
-    }
-
-    modifier onlyOwner() {
-        require(
-            msg.sender == _owner,
-            "Ownable: caller is not the owner"
-        );
-        _;
-    }
+    string private _greeting = "Hello, World!";
 
     function greet() external view returns(string memory) {
         // Returns current contract greeting
@@ -29,8 +16,4 @@ contract Greeter {
         _greeting = greeting;
     }
 
-    function owner() public view returns(address) {
-        // Returns current contract owner address
-        return _owner;
-    }
 }
