@@ -9,14 +9,14 @@ contract("Fundraiser", accounts => {
     const image_url = "https://imgur.com/image";
     const description = "The best fundraiser ever launched"
     const beneficiary = accounts[1];
-    const custodian = accounts[0];
+    const owner = accounts[0];
 
-    describe("Initialization", () => {
-        beforeEach (async () => {
-            fundraiser = await FundraiserContract.new(
-                name, website_url, image_url, description, beneficiary, custodian);
-        });
+    beforeEach (async () => {
+        fundraiser = await FundraiserContract.new(
+            name, website_url, image_url, description, beneficiary, owner);
+    });
 
+    describe("initialization", () => {
         it("gets the beneficiary name", async () => {
             const actual = await fundraiser.name();
             assert.equal(actual, name, "names should match");
@@ -42,9 +42,30 @@ contract("Fundraiser", accounts => {
             assert.equal(actual, beneficiary, "beneficiary addresses should match");
         });
 
-        it("gets the custodian", async () => {
-            const actual = await fundraiser.custodian();
-            assert.equal(actual, custodian, "custodians should match");
+        it("gets the owner", async () => {
+            const actual = await fundraiser.owner();
+            assert.equal(actual, owner, "owners should match");
+        });
+    });
+
+    describe("setBeneficiary", () => {
+        const newBeneficiary = accounts[2];
+
+        it("updated beneficiary when called by the owner account", async () => {
+            await fundraiser.setBeneficiary(newBeneficiary, {from: owner});
+            const actualBeneficiary = await fundraiser.beneficiary();
+            assert.equal(actualBeneficiary, newBeneficiary, "beneficiaries should match");
+        });
+
+        it("throws an error when called from a non-owner account", async () => {
+            try {
+                await fundraiser.setBeneficiary(newBeneficiary, {from: accounts[3]});
+                assert.fail("withdraw was not restricted to owners");
+            } catch(err) {
+                const expectedError = "Ownable: caller is not the owner";
+                const actualError = err.reason;
+                assert.equal(actualError, expectedError, "should not be permitted");
+            }
         });
     });
 });
