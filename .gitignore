@@ -1,2 +1,5 @@
 .idea
 greeter/build
+node_modules
+/greeter/node_modules/
+/greeter/client/node_modules
